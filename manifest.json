@@ -1,14 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Before You Scroll",
-  "version": "1.0.0",
-  "description": "Replaces the new tab page with a simple to-do list to remind you what you actually meant to do.",
+  "version": "1.0.1",
+  "description": "Replaces the new tab page with a minimal to-do list. A gentle nudge from past-you, who had plans.",
   "browser_specific_settings": {
     "gecko": {
       "id": "before-you-scroll@thomaseliot.com",
-      "strict_min_version": "109.0"
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
+  "permissions": ["storage"],
   "icons": {
     "48": "icons/icon-48.png",
     "96": "icons/icon-96.png"
