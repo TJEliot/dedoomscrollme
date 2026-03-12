@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before you scroll...</title>
+<style>
+  :root {
+    --bg: #1a1a1e;
+    --surface: #24242a;
+    --surface-hover: #2e2e36;
+    --border: #3a3a44;
+    --text: #00FF41;
+    --text-dim: #00FF41;
+    --text-faint: #00FF41;
+    --accent: #c9a86c;
+    --accent-dim: #8a7548;
+    --done: #5a7a5a;
+    --done-text: #7aaa7a;
+    --danger: #8a4a4a;
+    --danger-hover: #aa5a5a;
+    --font: 'Courier New', 'Courier', monospace;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6vh 16px 4vh;
+    line-height: 1.5;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .header {
+    margin-bottom: 2.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.05rem;
+    font-weight: normal;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+
+  .header h1 .prompt {
+    color: var(--accent);
+  }
+
+  .header .subtitle {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    margin-top: 0.35rem;
+  }
+
+  /* Input area */
+  .add-form {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.8rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .add-form:focus-within {
+    border-color: var(--accent-dim);
+  }
+
+  .add-input {
+    flex: 1;
+    background: var(--surface);
+    border: none;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.9rem;
+    padding: 0.65rem 0.8rem;
+    outline: none;
+  }
+
+  .add-input::placeholder {
+    color: var(--text-faint);
+  }
+
+  .add-btn {
+    background: var(--surface);
+    border: none;
+    border-left: 1px solid var(--border);
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 0.9rem;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
+  .add-btn:hover {
+    background: var(--surface-hover);
+  }
+
+  /* Task list */
+  .tasks {
+    list-style: none;
+  }
+
+  .task {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    animation: fadeIn 0.15s ease-out;
+  }
+
+  .task:last-child {
+    border-bottom: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .task-check {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    border: 1px solid var(--text-faint);
+    border-radius: 2px;
+    background: transparent;
+    cursor: pointer;
+    margin-top: 3px;
+    transition: all 0.12s;
+    position: relative;
+  }
+
+  .task-check:hover {
+    border-color: var(--accent-dim);
+  }
+
+  .task-check:checked {
+    border-color: var(--done);
+    background: var(--done);
+  }
+
+  .task-check:checked::after {
+    content: '✓';
+    position: absolute;
+    top: -1px;
+    left: 2px;
+    font-size: 12px;
+    color: var(--bg);
+    font-weight: bold;
+  }
+
+  .task-text {
+    flex: 1;
+    font-size: 0.9rem;
+    word-break: break-word;
+    cursor: default;
+    padding-top: 1px;
+  }
+
+  .task.done .task-text {
+    color: var(--text-faint);
+    text-decoration: line-through;
+    text-decoration-color: var(--text-faint);
+  }
+
+  .task-delete {
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    font-family: var(--font);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    opacity: 0;
+    transition: opacity 0.1s, color 0.1s;
+  }
+
+  .task:hover .task-delete {
+    opacity: 1;
+  }
+
+  .task-delete:hover {
+    color: var(--danger-hover);
+  }
+
+  /* Empty state */
+  .empty {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    padding: 2rem 0;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .empty .shrug {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  /* Footer stats */
+  .footer {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .clear-done {
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    font-family: var(--font);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 2px 0;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.12s, color 0.12s;
+  }
+
+  .clear-done:hover {
+    color: var(--danger-hover);
+    text-decoration-color: var(--danger-hover);
+  }
+
+  /* Drag and drop */
+  .task.dragging {
+    opacity: 0.4;
+  }
+
+  .task.drag-over {
+    border-top: 2px solid var(--accent-dim);
+    padding-top: calc(0.55rem - 2px);
+  }
+
+  .task-grip {
+    color: var(--text-faint);
+    cursor: grab;
+    font-size: 0.7rem;
+    padding: 2px 2px 2px 0;
+    margin-top: 2px;
+    opacity: 0;
+    transition: opacity 0.1s;
+    user-select: none;
+  }
+
+  .task:hover .task-grip {
+    opacity: 0.6;
+  }
+
+  .task-grip:active {
+    cursor: grabbing;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    body {
+      padding: 4vh 12px 3vh;
+    }
+    .task-delete, .task-grip {
+      opacity: 0.5;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1><span class="prompt">&gt;</span> before you scroll, maybe do one of these?</h1>
+    <div class="subtitle">— past you, who had plans</div>
+  </div>
+
+  <div class="add-form">
+    <input
+      type="text"
+      class="add-input"
+      id="taskInput"
+      placeholder="add something worth doing..."
+      autocomplete="off"
+      maxlength="300"
+    >
+    <button class="add-btn" id="addBtn">+</button>
+  </div>
+
+  <ul class="tasks" id="taskList"></ul>
+
+  <div class="footer" id="footer" style="display:none;">
+    <span id="stats"></span>
+    <button class="clear-done" id="clearDone">clear done</button>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'newtab-todo-v1';
+
+  // State
+  let tasks = loadTasks();
+
+  // Elements
+  const taskInput = document.getElementById('taskInput');
+  const addBtn = document.getElementById('addBtn');
+  const taskList = document.getElementById('taskList');
+  const footer = document.getElementById('footer');
+  const stats = document.getElementById('stats');
+  const clearDoneBtn = document.getElementById('clearDone');
+
+  function loadTasks() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      // Validate shape
+      return parsed.filter(t =>
+        t && typeof t.id === 'string' && typeof t.text === 'string' && typeof t.done === 'boolean'
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  function saveTasks() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    } catch (e) {
+      console.warn('Could not save tasks:', e);
+    }
+  }
+
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function addTask(text) {
+    text = text.trim();
+    if (!text) return;
+    tasks.push({ id: generateId(), text, done: false });
+    saveTasks();
+    render();
+    taskInput.value = '';
+    taskInput.focus();
+  }
+
+  function toggleTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      task.done = !task.done;
+      saveTasks();
+      render();
+    }
+  }
+
+  function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    saveTasks();
+    render();
+  }
+
+  function clearDone() {
+    tasks = tasks.filter(t => !t.done);
+    saveTasks();
+    render();
+  }
+
+  // Drag state
+  let dragId = null;
+
+  function render() {
+    taskList.innerHTML = '';
+
+    if (tasks.length === 0) {
+      taskList.innerHTML = `
+        <li class="empty">
+          <span class="shrug">¯\\_(ツ)_/¯</span>
+          nothing here yet. add something you keep meaning to do.
+        </li>
+      `;
+      footer.style.display = 'none';
+      return;
+    }
+
+    const doneCount = tasks.filter(t => t.done).length;
+    const totalCount = tasks.length;
+    const pendingCount = totalCount - doneCount;
+
+    tasks.forEach(task => {
+      const li = document.createElement('li');
+      li.className = 'task' + (task.done ? ' done' : '');
+      li.dataset.id = task.id;
+      li.draggable = true;
+
+      // Grip handle
+      const grip = document.createElement('span');
+      grip.className = 'task-grip';
+      grip.textContent = '⠿';
+      grip.setAttribute('aria-hidden', 'true');
+
+      // Checkbox
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'task-check';
+      check.checked = task.done;
+      check.setAttribute('aria-label', 'Mark "' + task.text + '" as ' + (task.done ? 'not done' : 'done'));
+      check.addEventListener('change', () => toggleTask(task.id));
+
+      // Text
+      const span = document.createElement('span');
+      span.className = 'task-text';
+      span.textContent = task.text;
+
+      // Delete
+      const del = document.createElement('button');
+      del.className = 'task-delete';
+      del.textContent = '×';
+      del.setAttribute('aria-label', 'Delete "' + task.text + '"');
+      del.addEventListener('click', () => deleteTask(task.id));
+
+      // Drag events
+      li.addEventListener('dragstart', (e) => {
+        dragId = task.id;
+        li.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      li.addEventListener('dragend', () => {
+        li.classList.remove('dragging');
+        dragId = null;
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      });
+
+      li.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (task.id !== dragId) {
+          li.classList.add('drag-over');
+        }
+      });
+
+      li.addEventListener('dragleave', () => {
+        li.classList.remove('drag-over');
+      });
+
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        if (dragId && dragId !== task.id) {
+          const fromIdx = tasks.findIndex(t => t.id === dragId);
+          const toIdx = tasks.findIndex(t => t.id === task.id);
+          if (fromIdx !== -1 && toIdx !== -1) {
+            const [moved] = tasks.splice(fromIdx, 1);
+            tasks.splice(toIdx, 0, moved);
+            saveTasks();
+            render();
+          }
+        }
+      });
+
+      li.appendChild(grip);
+      li.appendChild(check);
+      li.appendChild(span);
+      li.appendChild(del);
+      taskList.appendChild(li);
+    });
+
+    // Footer
+    footer.style.display = 'flex';
+    if (pendingCount === 0) {
+      stats.textContent = 'all done. nice.';
+    } else {
+      stats.textContent = pendingCount + ' to go' + (doneCount > 0 ? ' · ' + doneCount + ' done' : '');
+    }
+    clearDoneBtn.style.display = doneCount > 0 ? 'inline' : 'none';
+  }
+
+  // Event listeners
+  taskInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addTask(taskInput.value);
+  });
+
+  addBtn.addEventListener('click', () => addTask(taskInput.value));
+  clearDoneBtn.addEventListener('click', clearDone);
+
+  // Initial render
+  render();
+  taskInput.focus();
+</script>
+
+</body>
+</html>
